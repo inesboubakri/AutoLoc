@@ -8,7 +8,6 @@ import lombok.Setter;
 import tn.esprit.tpautoloc.domain.enums.StatutReservation;
 import java.time.LocalDate;
 
-
 @Entity
 @Table(name = "reservation")
 @Getter
@@ -34,6 +33,7 @@ public class Reservation {
     @JoinColumn(name = "id_vehicule")
     private Vehicule vehicule;
 
-    @OneToOne(mappedBy = "reservation")
+    @OneToOne
+    @JoinColumn(name = "id_contrat")
     private Contrat contrat;
 }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import tn.esprit.tpautoloc.domain.Agence;
 import tn.esprit.tpautoloc.domain.Client;
+import tn.esprit.tpautoloc.exception.ResourceNotFoundException;
 import tn.esprit.tpautoloc.repository.IAgenceRepository;
 import tn.esprit.tpautoloc.repository.IClientRepository;
 
@@ -25,6 +26,9 @@ import tn.esprit.tpautoloc.domain.enums.RoleEmploye;
 import tn.esprit.tpautoloc.repository.IEmployeRepository;
 import tn.esprit.tpautoloc.repository.IMaintenanceRepository;
 import tn.esprit.tpautoloc.repository.IEquipementRepository;
+import tn.esprit.tpautoloc.service.IAgenceService;
+import tn.esprit.tpautoloc.service.IClientService;
+import tn.esprit.tpautoloc.service.IVehiculeService;
 
 @SpringBootTest
 class TpAutolocApplicationTests {
@@ -273,4 +277,137 @@ class TpAutolocApplicationTests {
         assertFalse(existeApresSuppression);
         System.out.println("L'équipement existe après suppression : " + existeApresSuppression);
     }
+    @Autowired
+    private IAgenceService agenceService;
+
+    @Test
+    void testAgenceService() {
+        // Création d'une agence
+        Agence agence = new Agence();
+        agence.setNom("Agence Sfax Nord");
+        agence.setVille("Sfax");
+        agence.setAdresse("45 Rue de la Liberté");
+        agence.setTelephone("74222333");
+
+        // create()
+        Agence agenceCreee = agenceService.create(agence);
+        System.out.println("Agence créée (via service) : " + agenceCreee.getIdAgence()
+                + " - " + agenceCreee.getNom());
+        assertNotNull(agenceCreee.getIdAgence());
+
+        // findAll()
+        List<Agence> toutesLesAgences = agenceService.findAll();
+        System.out.println("Nombre total d'agences : " + toutesLesAgences.size());
+        toutesLesAgences.forEach(a -> System.out.println(" - " + a.getNom()));
+
+        // findById()
+        Agence agenceTrouvee = agenceService.findById(agenceCreee.getIdAgence());
+        assertNotNull(agenceTrouvee);
+        System.out.println("Agence trouvée par ID : " + agenceTrouvee.getNom());
+
+        // "count" via findAll().size() (le service ne expose pas count())
+        System.out.println("Nombre d'agences en base : " + agenceService.findAll().size());
+
+        // update()
+        agenceCreee.setVille("Sfax Centre");
+        Agence agenceModifiee = agenceService.update(agenceCreee.getIdAgence(), agenceCreee);
+        System.out.println("Ville mise à jour : " + agenceModifiee.getVille());
+        assertEquals("Sfax Centre", agenceModifiee.getVille());
+
+        // deleteById()
+        agenceService.deleteById(agenceCreee.getIdAgence());
+        assertThrows(ResourceNotFoundException.class,
+                () -> agenceService.findById(agenceCreee.getIdAgence()));
+        System.out.println("L'agence a bien été supprimée (ResourceNotFoundException confirmée)");
+    }
+    @Autowired
+    private IClientService clientService;
+
+    @Test
+    void testClientService() {
+        // Création de deux clients
+        Client client1 = new Client();
+        client1.setNom("Jlassi");
+        client1.setPrenom("Nour");
+        client1.setEmail("nour.jlassi@email.com");
+        client1.setTelephone("98555666");
+        client1.setNumPermis("TN555666");
+        client1.setDateInscription(LocalDate.now());
+
+        Client client2 = new Client();
+        client2.setNom("Gharbi");
+        client2.setPrenom("Karim");
+        client2.setEmail("karim.gharbi@email.com");
+        client2.setTelephone("98777888");
+        client2.setNumPermis("TN777888");
+        client2.setDateInscription(LocalDate.now());
+
+        // create()
+        Client client1Cree = clientService.create(client1);
+        Client client2Cree = clientService.create(client2);
+        System.out.println("Client 1 créé (via service) : " + client1Cree.getIdClient()
+                + " - " + client1Cree.getNom());
+        System.out.println("Client 2 créé (via service) : " + client2Cree.getIdClient()
+                + " - " + client2Cree.getNom());
+
+        // findAll()
+        List<Client> tousLesClients = clientService.findAll();
+        System.out.println("Nombre total de clients : " + tousLesClients.size());
+
+        // findById()
+        Client clientTrouve = clientService.findById(client1Cree.getIdClient());
+        assertNotNull(clientTrouve);
+        System.out.println("Client trouvé par ID : " + clientTrouve.getNom());
+
+        // "count"
+        System.out.println("Nombre de clients en base : " + clientService.findAll().size());
+
+        // deleteById() du premier client
+        clientService.deleteById(client1Cree.getIdClient());
+        assertThrows(ResourceNotFoundException.class,
+                () -> clientService.findById(client1Cree.getIdClient()));
+        System.out.println("Le client 1 a bien été supprimé");
+
+        // nettoyage du second client créé pour ce test
+        clientService.deleteById(client2Cree.getIdClient());
+    }
+    @Autowired
+    private IVehiculeService vehiculeService;
+
+    @Test
+    void testVehiculeService() {
+        // Création d'un véhicule
+        Vehicule vehicule = new Vehicule();
+        vehicule.setImmatriculation("789 TUN 1234");
+        vehicule.setMarque("Peugeot");
+        vehicule.setModele("208");
+        vehicule.setCategorie(CategorieVehicule.CITADINE);
+        vehicule.setTarifJournalier(new BigDecimal("90.00"));
+        vehicule.setStatut(StatutVehicule.DISPONIBLE);
+
+        // create()
+        Vehicule vehiculeCree = vehiculeService.create(vehicule);
+        System.out.println("Véhicule créé (via service) : " + vehiculeCree.getIdVehicule()
+                + " - " + vehiculeCree.getMarque() + " " + vehiculeCree.getModele());
+        assertNotNull(vehiculeCree.getIdVehicule());
+
+        // findAll()
+        List<Vehicule> tousLesVehicules = vehiculeService.findAll();
+        System.out.println("Nombre total de véhicules : " + tousLesVehicules.size());
+
+        // findById()
+        Vehicule vehiculeTrouve = vehiculeService.findById(vehiculeCree.getIdVehicule());
+        assertNotNull(vehiculeTrouve);
+        System.out.println("Véhicule trouvé par ID : " + vehiculeTrouve.getMarque());
+
+        // "count"
+        System.out.println("Nombre de véhicules en base : " + vehiculeService.findAll().size());
+
+        // deleteById()
+        vehiculeService.deleteById(vehiculeCree.getIdVehicule());
+        assertThrows(ResourceNotFoundException.class,
+                () -> vehiculeService.findById(vehiculeCree.getIdVehicule()));
+        System.out.println("Le véhicule a bien été supprimé");
+    }
+
 }

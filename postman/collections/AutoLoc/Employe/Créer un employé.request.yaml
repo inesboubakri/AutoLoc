@@ -1,0 +1,11 @@
+$kind: http-request
+url: ""
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Statut 400", () => pm.response.to.have.status(400));
+      pm.test("Vérifier le message d'erreur", () => {
+          pm.expect(pm.response.json()).to.have.property("error", "Bad Request");
+      });
+order: 2000

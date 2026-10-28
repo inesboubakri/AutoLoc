@@ -1,0 +1,14 @@
+$kind: http-request
+url: ""
+method: GET
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Statut 400", function () {
+          pm.response.to.have.status(400);
+      });
+
+      pm.test("Response has error message", function () {
+          pm.response.to.have.jsonBody("error");
+      });
+order: 8000

@@ -1,0 +1,13 @@
+$kind: http-request
+name: Lister les contrats
+url: "{{baseUrl}}/api/contrats"
+method: GET
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Statut 200\", () => {\r
+
+      pm.response.to.have.status(200);\r
+
+      });"
+    language: text/javascript
+order: 1792834289678

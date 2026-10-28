@@ -1,5 +1,7 @@
 package tn.esprit.tpautoloc.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +10,6 @@ import lombok.Setter;
 import tn.esprit.tpautoloc.domain.enums.ModePaiement;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
 
 @Entity
 @Table(name = "paiement")
@@ -27,7 +28,13 @@ public class Paiement {
     @Enumerated(EnumType.STRING)
     private ModePaiement modePaiement;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_contrat")
+    @JsonBackReference("contrat-paiements")
     private Contrat contrat;
+
+    @JsonProperty(value = "idContrat", access = JsonProperty.Access.READ_ONLY)
+    public Long getIdContrat() {
+        return contrat != null ? contrat.getIdContrat() : null;
+    }
 }
