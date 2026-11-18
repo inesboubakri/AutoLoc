@@ -7,10 +7,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.tpautoloc.domain.Equipement;
 import tn.esprit.tpautoloc.service.IEquipementService;
-import tn.esprit.tpautoloc.web.dto.EquipementDTO;
 
 @Tag(name = "Equipements", description = "Gestion des équipements")
 @RestController
@@ -27,25 +26,25 @@ public class EquipementController {
     @Operation(summary = "Lister les équipements")
     @ApiResponse(responseCode = "200", description = "Liste des équipements")
     @GetMapping
-    public ResponseEntity<List<EquipementDTO>> findAll() {
-        return ResponseEntity.ok(equipementService.findAll());
+    public List<Equipement> findAll() {
+        return equipementService.findAll();
     }
 
     @Operation(summary = "Consulter un équipement")
     @ApiResponse(responseCode = "200", description = "Équipement trouvé")
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @GetMapping("/{id}")
-    public ResponseEntity<EquipementDTO> findById(@Parameter(description = ID_DESC) @PathVariable Long id) {
-        return ResponseEntity.ok(equipementService.findById(id));
+    public Equipement findById(@Parameter(description = ID_DESC) @PathVariable Long id) {
+        return equipementService.findById(id);
     }
 
     @Operation(summary = "Créer un équipement")
     @ApiResponse(responseCode = "201", description = "Équipement créé")
     @ApiResponse(responseCode = "400", description = INVALID)
     @PostMapping
-    public ResponseEntity<EquipementDTO> creer(@RequestBody EquipementDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(equipementService.creer(dto));
+    @ResponseStatus(HttpStatus.CREATED)
+    public Equipement create(@RequestBody Equipement equipement) {
+        return equipementService.create(equipement);
     }
 
     @Operation(summary = "Modifier un équipement")
@@ -53,17 +52,17 @@ public class EquipementController {
     @ApiResponse(responseCode = "400", description = INVALID)
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @PutMapping("/{id}")
-    public ResponseEntity<EquipementDTO> update(@Parameter(description = ID_DESC) @PathVariable Long id,
-                                         @RequestBody EquipementDTO dto) {
-        return ResponseEntity.ok(equipementService.update(id, dto));
+    public Equipement update(@Parameter(description = ID_DESC) @PathVariable Long id,
+                             @RequestBody Equipement equipement) {
+        return equipementService.update(id, equipement);
     }
 
     @Operation(summary = "Supprimer un équipement")
     @ApiResponse(responseCode = "204", description = "Équipement supprimé")
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@Parameter(description = ID_DESC) @PathVariable Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@Parameter(description = ID_DESC) @PathVariable Long id) {
         equipementService.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }
