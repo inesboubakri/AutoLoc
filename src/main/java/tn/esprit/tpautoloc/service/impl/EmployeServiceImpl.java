@@ -15,6 +15,8 @@ import tn.esprit.tpautoloc.service.IEmployeService;
 @RequiredArgsConstructor
 public class EmployeServiceImpl implements IEmployeService {
 
+    private static final String ENTITE_EMPLOYE = "Employe";
+
     private final IEmployeRepository employeRepository;
     private final IAgenceRepository agenceRepository;
 
@@ -32,7 +34,7 @@ public class EmployeServiceImpl implements IEmployeService {
     @Override
     public Employe findById(Long id) {
         return employeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employe", id));
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITE_EMPLOYE, id));
     }
 
     @Override
@@ -54,7 +56,7 @@ public class EmployeServiceImpl implements IEmployeService {
     @Override
     public void deleteById(Long id) {
         if (!employeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Employe", id);
+            throw new ResourceNotFoundException(ENTITE_EMPLOYE, id);
         }
         employeRepository.deleteById(id);
     }
@@ -65,7 +67,7 @@ public class EmployeServiceImpl implements IEmployeService {
     @Transactional
     public void affecterEmployeAAgence(Long employeId, Long agenceId) {
         Employe employe = employeRepository.findById(employeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employe", employeId));
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITE_EMPLOYE, employeId));
 
         Agence agence = agenceRepository.findById(agenceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Agence", agenceId));
@@ -79,7 +81,7 @@ public class EmployeServiceImpl implements IEmployeService {
     @Transactional
     public void desaffecterEmployeDeAgence(Long employeId) {
         Employe employe = employeRepository.findById(employeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Employe", employeId));
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITE_EMPLOYE, employeId));
 
         if (employe.getAgence() == null) {
             throw new IllegalArgumentException(

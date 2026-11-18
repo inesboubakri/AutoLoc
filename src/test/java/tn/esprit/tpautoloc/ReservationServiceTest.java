@@ -15,11 +15,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReservationServiceTest {
 
     // Le service à tester
-    @Autowired
-    private IReservationService reservationService;
+    private final IReservationService reservationService;
+    private final ReservationSubject reservationSubject;
 
     @Autowired
-    private ReservationSubject reservationSubject;
+    ReservationServiceTest(IReservationService reservationService,
+                           ReservationSubject reservationSubject) {
+        this.reservationService = reservationService;
+        this.reservationSubject = reservationSubject;
+    }
 
     private Client creerClient() {
         Client client = new Client();

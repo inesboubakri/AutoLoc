@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.tpautoloc.domain.Employe;
 import tn.esprit.tpautoloc.service.IEmployeService;
+import tn.esprit.tpautoloc.web.request.EmployeRequest;
 
 @Tag(name = "Employes", description = "Gestion des employés")
 @RestController
@@ -44,8 +45,8 @@ public class EmployeController {
     @ApiResponse(responseCode = "404", description = "Agence introuvable")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Employe create(@RequestBody Employe employe) {
-        return employeService.create(employe);
+    public Employe create(@RequestBody EmployeRequest employe) {
+        return employeService.create(employe.toEntity());
     }
 
     @Operation(summary = "Modifier un employé")
@@ -54,8 +55,8 @@ public class EmployeController {
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @PutMapping("/{id}")
     public Employe update(@Parameter(description = ID_DESC) @PathVariable Long id,
-                          @RequestBody Employe employe) {
-        return employeService.update(id, employe);
+                          @RequestBody EmployeRequest employe) {
+        return employeService.update(id, employe.toEntity());
     }
 
     @Operation(summary = "Supprimer un employé")

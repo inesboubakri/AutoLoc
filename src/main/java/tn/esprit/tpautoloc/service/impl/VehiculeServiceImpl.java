@@ -19,6 +19,8 @@ import tn.esprit.tpautoloc.web.mapper.VehiculeMapper;
 @Transactional
 public class VehiculeServiceImpl implements IVehiculeService {
 
+    private static final String ENTITE_VEHICULE = "Vehicule";
+
     private final IVehiculeRepository vehiculeRepository;
     private final IAgenceRepository agenceRepository;
     private final VehiculeMapper vehiculeMapper;
@@ -67,7 +69,7 @@ public class VehiculeServiceImpl implements IVehiculeService {
     @Override
     public void deleteById(Long id) {
         if (!vehiculeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Vehicule", id);
+            throw new ResourceNotFoundException(ENTITE_VEHICULE, id);
         }
         vehiculeRepository.deleteById(id);
     }
@@ -78,7 +80,7 @@ public class VehiculeServiceImpl implements IVehiculeService {
     @Transactional
     public void affecterVehiculeAAgence(Long vehiculeId, Long agenceId) {
         Vehicule vehicule = vehiculeRepository.findById(vehiculeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", vehiculeId));
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITE_VEHICULE, vehiculeId));
 
         Agence agence = agenceRepository.findById(agenceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Agence", agenceId));
@@ -92,7 +94,7 @@ public class VehiculeServiceImpl implements IVehiculeService {
     @Transactional
     public void desaffecterVehiculeDeAgence(Long vehiculeId) {
         Vehicule vehicule = vehiculeRepository.findById(vehiculeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", vehiculeId));
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITE_VEHICULE, vehiculeId));
 
         if (vehicule.getAgence() == null) {
             throw new IllegalArgumentException(
@@ -107,7 +109,7 @@ public class VehiculeServiceImpl implements IVehiculeService {
 
     private Vehicule getVehicule(Long id) {
         return vehiculeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", id));
+                .orElseThrow(() -> new ResourceNotFoundException(ENTITE_VEHICULE, id));
     }
 
     private void validerTarif(BigDecimal tarifJournalier) {

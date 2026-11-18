@@ -43,8 +43,8 @@ public class TarificationStrategyFactory {
         DayOfWeek debut = reservation.getDateDebut().getDayOfWeek();
         DayOfWeek fin = reservation.getDateFin().getDayOfWeek();
         long jours = ChronoUnit.DAYS.between(reservation.getDateDebut(), reservation.getDateFin());
-        return (debut == DayOfWeek.FRIDAY || debut == DayOfWeek.SATURDAY)
-                && (fin == DayOfWeek.SUNDAY || fin == DayOfWeek.MONDAY)
+        return (DayOfWeek.FRIDAY.equals(debut) || DayOfWeek.SATURDAY.equals(debut))
+                && (DayOfWeek.SUNDAY.equals(fin) || DayOfWeek.MONDAY.equals(fin))
                 && jours <= 3;
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.tpautoloc.domain.Maintenance;
 import tn.esprit.tpautoloc.service.IMaintenanceService;
+import tn.esprit.tpautoloc.web.request.MaintenanceRequest;
 
 @Tag(name = "Maintenances", description = "Gestion des maintenances")
 @RestController
@@ -44,8 +45,8 @@ public class MaintenanceController {
     @ApiResponse(responseCode = "404", description = "Véhicule introuvable")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Maintenance create(@RequestBody Maintenance maintenance) {
-        return maintenanceService.create(maintenance);
+    public Maintenance create(@RequestBody MaintenanceRequest maintenance) {
+        return maintenanceService.create(maintenance.toEntity());
     }
 
     @Operation(summary = "Modifier une maintenance")
@@ -54,8 +55,8 @@ public class MaintenanceController {
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @PutMapping("/{id}")
     public Maintenance update(@Parameter(description = ID_DESC) @PathVariable Long id,
-                              @RequestBody Maintenance maintenance) {
-        return maintenanceService.update(id, maintenance);
+                              @RequestBody MaintenanceRequest maintenance) {
+        return maintenanceService.update(id, maintenance.toEntity());
     }
 
     @Operation(summary = "Supprimer une maintenance")

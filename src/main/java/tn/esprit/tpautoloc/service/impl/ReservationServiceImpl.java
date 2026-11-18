@@ -1,6 +1,7 @@
 package tn.esprit.tpautoloc.service.impl;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,7 +89,7 @@ public class ReservationServiceImpl implements IReservationService {
     public Reservation creerReservation(Client client) {
         Reservation reservation = Reservation.builder()
                 .client(client)
-                .dateDebut(LocalDate.now())
+                .dateDebut(LocalDate.now(ZoneId.systemDefault()))
                 .statut(StatutReservation.CONFIRMEE)
                 .build();
 

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.tpautoloc.domain.Equipement;
 import tn.esprit.tpautoloc.service.IEquipementService;
+import tn.esprit.tpautoloc.web.request.EquipementRequest;
 
 @Tag(name = "Equipements", description = "Gestion des équipements")
 @RestController
@@ -43,8 +44,8 @@ public class EquipementController {
     @ApiResponse(responseCode = "400", description = INVALID)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Equipement create(@RequestBody Equipement equipement) {
-        return equipementService.create(equipement);
+    public Equipement create(@RequestBody EquipementRequest equipement) {
+        return equipementService.create(equipement.toEntity());
     }
 
     @Operation(summary = "Modifier un équipement")
@@ -53,8 +54,8 @@ public class EquipementController {
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @PutMapping("/{id}")
     public Equipement update(@Parameter(description = ID_DESC) @PathVariable Long id,
-                             @RequestBody Equipement equipement) {
-        return equipementService.update(id, equipement);
+                             @RequestBody EquipementRequest equipement) {
+        return equipementService.update(id, equipement.toEntity());
     }
 
     @Operation(summary = "Supprimer un équipement")

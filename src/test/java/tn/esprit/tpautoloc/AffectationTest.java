@@ -2,6 +2,7 @@ package tn.esprit.tpautoloc;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,22 +27,30 @@ import static org.junit.jupiter.api.Assertions.*;
  * Atelier 7 — Partie 1.5 : contrôles et tests de l'affectation / désaffectation
  * d'un véhicule et d'un employé à une agence.
  */
+@Slf4j
 @SpringBootTest
 class AffectationTest {
 
     private static final Long ID_INEXISTANT = 999_999L;
 
-    @Autowired
-    private IVehiculeService vehiculeService;
-    @Autowired
-    private IEmployeService employeService;
+    private final IVehiculeService vehiculeService;
+    private final IEmployeService employeService;
+    private final IAgenceRepository agenceRepository;
+    private final IVehiculeRepository vehiculeRepository;
+    private final IEmployeRepository employeRepository;
 
     @Autowired
-    private IAgenceRepository agenceRepository;
-    @Autowired
-    private IVehiculeRepository vehiculeRepository;
-    @Autowired
-    private IEmployeRepository employeRepository;
+    AffectationTest(IVehiculeService vehiculeService,
+                    IEmployeService employeService,
+                    IAgenceRepository agenceRepository,
+                    IVehiculeRepository vehiculeRepository,
+                    IEmployeRepository employeRepository) {
+        this.vehiculeService = vehiculeService;
+        this.employeService = employeService;
+        this.agenceRepository = agenceRepository;
+        this.vehiculeRepository = vehiculeRepository;
+        this.employeRepository = employeRepository;
+    }
 
     private Agence agenceA;
     private Agence agenceB;
@@ -84,7 +93,7 @@ class AffectationTest {
         vehiculeService.affecterVehiculeAAgence(vehicule.getIdVehicule(), agenceA.getIdAgence());
 
         assertEquals(agenceA.getIdAgence(), agenceDuVehiculeEnBase());
-        System.out.println("Véhicule " + vehicule.getIdVehicule() + " affecté à l'agence " + agenceA.getIdAgence());
+        log.info("Véhicule {} affecté à l'agence {}", vehicule.getIdVehicule(), agenceA.getIdAgence());
     }
 
     @Test
@@ -92,7 +101,7 @@ class AffectationTest {
         Long agenceId = agenceA.getIdAgence();
         ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> vehiculeService.affecterVehiculeAAgence(ID_INEXISTANT, agenceId));
-        System.out.println("Erreur attendue : " + ex.getMessage());
+        log.info("Erreur attendue : {}", ex.getMessage());
     }
 
     @Test
@@ -102,7 +111,7 @@ class AffectationTest {
 
         ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> vehiculeService.affecterVehiculeAAgence(vehiculeId, ID_INEXISTANT));
-        System.out.println("Erreur attendue : " + ex.getMessage());
+        log.info("Erreur attendue : {}", ex.getMessage());
 
         // l'erreur ne laisse pas la base dans un état incohérent : toujours dans l'agence A
         assertEquals(agenceA.getIdAgence(), agenceDuVehiculeEnBase());
@@ -114,7 +123,7 @@ class AffectationTest {
         vehiculeService.affecterVehiculeAAgence(vehicule.getIdVehicule(), agenceB.getIdAgence());
 
         assertEquals(agenceB.getIdAgence(), agenceDuVehiculeEnBase());
-        System.out.println("Véhicule transféré de l'agence A vers l'agence B");
+        log.info("Véhicule transféré de l'agence A vers l'agence B");
     }
 
     @Test
@@ -125,7 +134,7 @@ class AffectationTest {
 
         // la clé étrangère id_agence est remise à NULL en base
         assertNull(agenceDuVehiculeEnBase());
-        System.out.println("Véhicule désaffecté : id_agence = NULL");
+        log.info("Véhicule désaffecté : id_agence = NULL");
     }
 
     @Test
@@ -133,7 +142,7 @@ class AffectationTest {
         Long vehiculeId = vehicule.getIdVehicule();
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> vehiculeService.desaffecterVehiculeDeAgence(vehiculeId));
-        System.out.println("Erreur attendue : " + ex.getMessage());
+        log.info("Erreur attendue : {}", ex.getMessage());
     }
 
     @Test
@@ -149,7 +158,7 @@ class AffectationTest {
         employeService.affecterEmployeAAgence(employe.getIdEmploye(), agenceA.getIdAgence());
 
         assertEquals(agenceA.getIdAgence(), agenceDeLEmployeEnBase());
-        System.out.println("Employé " + employe.getIdEmploye() + " affecté à l'agence " + agenceA.getIdAgence());
+        log.info("Employé {} affecté à l'agence {}", employe.getIdEmploye(), agenceA.getIdAgence());
     }
 
     @Test
@@ -157,7 +166,7 @@ class AffectationTest {
         Long agenceId = agenceA.getIdAgence();
         ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> employeService.affecterEmployeAAgence(ID_INEXISTANT, agenceId));
-        System.out.println("Erreur attendue : " + ex.getMessage());
+        log.info("Erreur attendue : {}", ex.getMessage());
     }
 
     @Test
@@ -167,7 +176,7 @@ class AffectationTest {
 
         ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> employeService.affecterEmployeAAgence(employeId, ID_INEXISTANT));
-        System.out.println("Erreur attendue : " + ex.getMessage());
+        log.info("Erreur attendue : {}", ex.getMessage());
 
         assertEquals(agenceA.getIdAgence(), agenceDeLEmployeEnBase());
     }
@@ -178,7 +187,7 @@ class AffectationTest {
         employeService.affecterEmployeAAgence(employe.getIdEmploye(), agenceB.getIdAgence());
 
         assertEquals(agenceB.getIdAgence(), agenceDeLEmployeEnBase());
-        System.out.println("Employé transféré de l'agence A vers l'agence B");
+        log.info("Employé transféré de l'agence A vers l'agence B");
     }
 
     @Test
@@ -188,7 +197,7 @@ class AffectationTest {
         employeService.desaffecterEmployeDeAgence(employe.getIdEmploye());
 
         assertNull(agenceDeLEmployeEnBase());
-        System.out.println("Employé désaffecté : id_agence = NULL");
+        log.info("Employé désaffecté : id_agence = NULL");
     }
 
     @Test
@@ -196,7 +205,7 @@ class AffectationTest {
         Long employeId = employe.getIdEmploye();
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> employeService.desaffecterEmployeDeAgence(employeId));
-        System.out.println("Erreur attendue : " + ex.getMessage());
+        log.info("Erreur attendue : {}", ex.getMessage());
     }
 
     // ============================== utilitaires ==============================
