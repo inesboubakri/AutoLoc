@@ -7,9 +7,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.tpautoloc.domain.Paiement;
 import tn.esprit.tpautoloc.service.IPaiementService;
+import tn.esprit.tpautoloc.web.dto.PaiementDTO;
 
 @Tag(name = "Paiements", description = "Gestion des paiements")
 @RestController
@@ -26,16 +27,16 @@ public class PaiementController {
     @Operation(summary = "Lister les paiements")
     @ApiResponse(responseCode = "200", description = "Liste des paiements")
     @GetMapping
-    public List<Paiement> findAll() {
-        return paiementService.findAll();
+    public ResponseEntity<List<PaiementDTO>> findAll() {
+        return ResponseEntity.ok(paiementService.findAll());
     }
 
     @Operation(summary = "Consulter un paiement")
     @ApiResponse(responseCode = "200", description = "Paiement trouvé")
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @GetMapping("/{id}")
-    public Paiement findById(@Parameter(description = ID_DESC) @PathVariable Long id) {
-        return paiementService.findById(id);
+    public ResponseEntity<PaiementDTO> findById(@Parameter(description = ID_DESC) @PathVariable Long id) {
+        return ResponseEntity.ok(paiementService.findById(id));
     }
 
     @Operation(summary = "Créer un paiement rattaché à un contrat")
@@ -43,10 +44,9 @@ public class PaiementController {
     @ApiResponse(responseCode = "400", description = INVALID)
     @ApiResponse(responseCode = "404", description = "Contrat introuvable")
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Paiement create(@Parameter(description = "Identifiant du contrat") @RequestParam Long contratId,
-                           @RequestBody Paiement paiement) {
-        return paiementService.create(contratId, paiement);
+    public ResponseEntity<PaiementDTO> creer(@RequestBody PaiementDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(paiementService.creer(dto));
     }
 
     @Operation(summary = "Modifier un paiement")
@@ -54,17 +54,17 @@ public class PaiementController {
     @ApiResponse(responseCode = "400", description = INVALID)
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @PutMapping("/{id}")
-    public Paiement update(@Parameter(description = ID_DESC) @PathVariable Long id,
-                           @RequestBody Paiement paiement) {
-        return paiementService.update(id, paiement);
+    public ResponseEntity<PaiementDTO> update(@Parameter(description = ID_DESC) @PathVariable Long id,
+                                         @RequestBody PaiementDTO dto) {
+        return ResponseEntity.ok(paiementService.update(id, dto));
     }
 
     @Operation(summary = "Supprimer un paiement")
     @ApiResponse(responseCode = "204", description = "Paiement supprimé")
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@Parameter(description = ID_DESC) @PathVariable Long id) {
+    public ResponseEntity<Void> deleteById(@Parameter(description = ID_DESC) @PathVariable Long id) {
         paiementService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

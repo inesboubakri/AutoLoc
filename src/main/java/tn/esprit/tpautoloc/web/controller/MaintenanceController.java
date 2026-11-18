@@ -7,9 +7,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.tpautoloc.domain.Maintenance;
 import tn.esprit.tpautoloc.service.IMaintenanceService;
+import tn.esprit.tpautoloc.web.dto.MaintenanceDTO;
 
 @Tag(name = "Maintenances", description = "Gestion des maintenances")
 @RestController
@@ -26,16 +27,16 @@ public class MaintenanceController {
     @Operation(summary = "Lister les maintenances")
     @ApiResponse(responseCode = "200", description = "Liste des maintenances")
     @GetMapping
-    public List<Maintenance> findAll() {
-        return maintenanceService.findAll();
+    public ResponseEntity<List<MaintenanceDTO>> findAll() {
+        return ResponseEntity.ok(maintenanceService.findAll());
     }
 
     @Operation(summary = "Consulter une maintenance")
     @ApiResponse(responseCode = "200", description = "Maintenance trouvée")
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @GetMapping("/{id}")
-    public Maintenance findById(@Parameter(description = ID_DESC) @PathVariable Long id) {
-        return maintenanceService.findById(id);
+    public ResponseEntity<MaintenanceDTO> findById(@Parameter(description = ID_DESC) @PathVariable Long id) {
+        return ResponseEntity.ok(maintenanceService.findById(id));
     }
 
     @Operation(summary = "Créer une maintenance")
@@ -43,9 +44,9 @@ public class MaintenanceController {
     @ApiResponse(responseCode = "400", description = INVALID)
     @ApiResponse(responseCode = "404", description = "Véhicule introuvable")
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Maintenance create(@RequestBody Maintenance maintenance) {
-        return maintenanceService.create(maintenance);
+    public ResponseEntity<MaintenanceDTO> creer(@RequestBody MaintenanceDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(maintenanceService.creer(dto));
     }
 
     @Operation(summary = "Modifier une maintenance")
@@ -53,17 +54,17 @@ public class MaintenanceController {
     @ApiResponse(responseCode = "400", description = INVALID)
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @PutMapping("/{id}")
-    public Maintenance update(@Parameter(description = ID_DESC) @PathVariable Long id,
-                              @RequestBody Maintenance maintenance) {
-        return maintenanceService.update(id, maintenance);
+    public ResponseEntity<MaintenanceDTO> update(@Parameter(description = ID_DESC) @PathVariable Long id,
+                                         @RequestBody MaintenanceDTO dto) {
+        return ResponseEntity.ok(maintenanceService.update(id, dto));
     }
 
     @Operation(summary = "Supprimer une maintenance")
     @ApiResponse(responseCode = "204", description = "Maintenance supprimée")
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@Parameter(description = ID_DESC) @PathVariable Long id) {
+    public ResponseEntity<Void> deleteById(@Parameter(description = ID_DESC) @PathVariable Long id) {
         maintenanceService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

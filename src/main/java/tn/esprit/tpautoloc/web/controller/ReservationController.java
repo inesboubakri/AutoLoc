@@ -7,9 +7,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.tpautoloc.domain.Reservation;
 import tn.esprit.tpautoloc.service.IReservationService;
+import tn.esprit.tpautoloc.web.dto.ReservationRequestDTO;
+import tn.esprit.tpautoloc.web.dto.ReservationResponseDTO;
 
 @Tag(name = "Reservations", description = "Gestion des réservations")
 @RestController
@@ -20,33 +22,32 @@ public class ReservationController {
     private static final String ID_DESC = "Identifiant de la réservation";
     private static final String NOT_FOUND = "Réservation introuvable";
     private static final String INVALID = "Données invalides";
-    private static final String LINK_NOT_FOUND = "Client, véhicule ou contrat introuvable";
 
     private final IReservationService reservationService;
 
     @Operation(summary = "Lister les réservations")
     @ApiResponse(responseCode = "200", description = "Liste des réservations")
     @GetMapping
-    public List<Reservation> findAll() {
-        return reservationService.findAll();
+    public ResponseEntity<List<ReservationResponseDTO>> findAll() {
+        return ResponseEntity.ok(reservationService.findAll());
     }
 
     @Operation(summary = "Consulter une réservation")
     @ApiResponse(responseCode = "200", description = "Réservation trouvée")
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @GetMapping("/{id}")
-    public Reservation findById(@Parameter(description = ID_DESC) @PathVariable Long id) {
-        return reservationService.findById(id);
+    public ResponseEntity<ReservationResponseDTO> findById(@Parameter(description = ID_DESC) @PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.findById(id));
     }
 
     @Operation(summary = "Créer une réservation")
     @ApiResponse(responseCode = "201", description = "Réservation créée")
     @ApiResponse(responseCode = "400", description = INVALID)
-    @ApiResponse(responseCode = "404", description = LINK_NOT_FOUND)
+    @ApiResponse(responseCode = "404", description = "Client ou véhicule introuvable")
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Reservation create(@RequestBody Reservation reservation) {
-        return reservationService.create(reservation);
+    public ResponseEntity<ReservationResponseDTO> creer(@RequestBody ReservationRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(reservationService.creer(dto));
     }
 
     @Operation(summary = "Modifier une réservation")
@@ -54,17 +55,17 @@ public class ReservationController {
     @ApiResponse(responseCode = "400", description = INVALID)
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @PutMapping("/{id}")
-    public Reservation update(@Parameter(description = ID_DESC) @PathVariable Long id,
-                              @RequestBody Reservation reservation) {
-        return reservationService.update(id, reservation);
+    public ResponseEntity<ReservationResponseDTO> update(@Parameter(description = ID_DESC) @PathVariable Long id,
+                                         @RequestBody ReservationRequestDTO dto) {
+        return ResponseEntity.ok(reservationService.update(id, dto));
     }
 
     @Operation(summary = "Supprimer une réservation")
     @ApiResponse(responseCode = "204", description = "Réservation supprimée")
     @ApiResponse(responseCode = "404", description = NOT_FOUND)
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@Parameter(description = ID_DESC) @PathVariable Long id) {
+    public ResponseEntity<Void> deleteById(@Parameter(description = ID_DESC) @PathVariable Long id) {
         reservationService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

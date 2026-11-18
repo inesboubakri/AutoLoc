@@ -8,46 +8,50 @@ import tn.esprit.tpautoloc.domain.Contrat;
 import tn.esprit.tpautoloc.exception.ResourceNotFoundException;
 import tn.esprit.tpautoloc.repository.IContratRepository;
 import tn.esprit.tpautoloc.service.IContratService;
+import tn.esprit.tpautoloc.web.dto.ContratDTO;
+import tn.esprit.tpautoloc.web.mapper.ContratMapper;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ContratServiceImpl implements IContratService {
 
     private final IContratRepository contratRepository;
+    private final ContratMapper contratMapper;
 
     @Override
-    @Transactional
-    public Contrat create(Contrat contrat) {
-        if (contrat.getIdContrat() != null) {
+    public ContratDTO creer(ContratDTO dto) {
+        if (dto.getId() != null) {
             throw new IllegalArgumentException(
                     "Un nouveau contrat ne doit pas avoir d'identifiant");
         }
-        if (contrat.getPaiements() != null) {
-            contrat.getPaiements().forEach(p -> p.setContrat(contrat));
-        }
-        return contratRepository.save(contrat);
+        Contrat contrat = contratMapper.toEntity(dto);
+        Contrat saved = contratRepository.save(contrat);
+        return contratMapper.toDto(saved);
     }
 
     @Override
-    public Contrat findById(Long id) {
-        return contratRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Contrat", id));
+    @Transactional(readOnly = true)
+    public ContratDTO findById(Long id) {
+        return contratMapper.toDto(getContrat(id));
     }
 
     @Override
-    public List<Contrat> findAll() {
-        return contratRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ContratDTO> findAll() {
+        return contratRepository.findAll().stream()
+                .map(contratMapper::toDto)
+                .toList();
     }
 
     @Override
-    @Transactional
-    public Contrat update(Long id, Contrat contrat) {
-        Contrat existant = findById(id);
-        existant.setDateSignature(contrat.getDateSignature());
-        existant.setMontantTotal(contrat.getMontantTotal());
-        existant.setValide(contrat.isValide());
+    public ContratDTO update(Long id, ContratDTO dto) {
+        Contrat existant = getContrat(id);
+        existant.setDateSignature(dto.getDateSignature());
+        existant.setMontantTotal(dto.getMontantTotal());
+        existant.setValide(dto.isValide());
         // ni l'identifiant, ni la collection de paiements (orphanRemoval les supprimerait)
-        return contratRepository.save(existant);
+        return contratMapper.toDto(contratRepository.save(existant));
     }
 
     @Override
@@ -56,5 +60,10 @@ public class ContratServiceImpl implements IContratService {
             throw new ResourceNotFoundException("Contrat", id);
         }
         contratRepository.deleteById(id);
+    }
+
+    private Contrat getContrat(Long id) {
+        return contratRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contrat", id));
     }
 }

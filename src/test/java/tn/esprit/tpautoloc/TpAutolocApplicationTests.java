@@ -29,6 +29,9 @@ import tn.esprit.tpautoloc.repository.IEquipementRepository;
 import tn.esprit.tpautoloc.service.IAgenceService;
 import tn.esprit.tpautoloc.service.IClientService;
 import tn.esprit.tpautoloc.service.IVehiculeService;
+import tn.esprit.tpautoloc.web.dto.AgenceDTO;
+import tn.esprit.tpautoloc.web.dto.ClientDTO;
+import tn.esprit.tpautoloc.web.dto.VehiculeDTO;
 
 @SpringBootTest
 class TpAutolocApplicationTests {
@@ -282,26 +285,27 @@ class TpAutolocApplicationTests {
 
     @Test
     void testAgenceService() {
-        // Création d'une agence
-        Agence agence = new Agence();
-        agence.setNom("Agence Sfax Nord");
-        agence.setVille("Sfax");
-        agence.setAdresse("45 Rue de la Liberté");
-        agence.setTelephone("74222333");
+        // Création d'une agence (DTO)
+        AgenceDTO agence = AgenceDTO.builder()
+                .nom("Agence Sfax Nord")
+                .ville("Sfax")
+                .adresse("45 Rue de la Liberté")
+                .telephone("74222333")
+                .build();
 
-        // create()
-        Agence agenceCreee = agenceService.create(agence);
-        System.out.println("Agence créée (via service) : " + agenceCreee.getIdAgence()
+        // creer()
+        AgenceDTO agenceCreee = agenceService.creer(agence);
+        System.out.println("Agence créée (via service) : " + agenceCreee.getId()
                 + " - " + agenceCreee.getNom());
-        assertNotNull(agenceCreee.getIdAgence());
+        assertNotNull(agenceCreee.getId());
 
         // findAll()
-        List<Agence> toutesLesAgences = agenceService.findAll();
+        List<AgenceDTO> toutesLesAgences = agenceService.findAll();
         System.out.println("Nombre total d'agences : " + toutesLesAgences.size());
         toutesLesAgences.forEach(a -> System.out.println(" - " + a.getNom()));
 
         // findById()
-        Agence agenceTrouvee = agenceService.findById(agenceCreee.getIdAgence());
+        AgenceDTO agenceTrouvee = agenceService.findById(agenceCreee.getId());
         assertNotNull(agenceTrouvee);
         System.out.println("Agence trouvée par ID : " + agenceTrouvee.getNom());
 
@@ -310,14 +314,14 @@ class TpAutolocApplicationTests {
 
         // update()
         agenceCreee.setVille("Sfax Centre");
-        Agence agenceModifiee = agenceService.update(agenceCreee.getIdAgence(), agenceCreee);
+        AgenceDTO agenceModifiee = agenceService.update(agenceCreee.getId(), agenceCreee);
         System.out.println("Ville mise à jour : " + agenceModifiee.getVille());
         assertEquals("Sfax Centre", agenceModifiee.getVille());
 
         // deleteById()
-        agenceService.deleteById(agenceCreee.getIdAgence());
+        agenceService.deleteById(agenceCreee.getId());
         assertThrows(ResourceNotFoundException.class,
-                () -> agenceService.findById(agenceCreee.getIdAgence()));
+                () -> agenceService.findById(agenceCreee.getId()));
         System.out.println("L'agence a bien été supprimée (ResourceNotFoundException confirmée)");
     }
     @Autowired
@@ -325,37 +329,39 @@ class TpAutolocApplicationTests {
 
     @Test
     void testClientService() {
-        // Création de deux clients
-        Client client1 = new Client();
-        client1.setNom("Jlassi");
-        client1.setPrenom("Nour");
-        client1.setEmail("nour.jlassi@email.com");
-        client1.setTelephone("98555666");
-        client1.setNumPermis("TN555666");
-        client1.setDateInscription(LocalDate.now());
+        // Création de deux clients (DTO)
+        ClientDTO client1 = ClientDTO.builder()
+                .nom("Jlassi")
+                .prenom("Nour")
+                .email("nour.jlassi@email.com")
+                .telephone("98555666")
+                .numPermis("TN555666")
+                .dateInscription(LocalDate.now())
+                .build();
 
-        Client client2 = new Client();
-        client2.setNom("Gharbi");
-        client2.setPrenom("Karim");
-        client2.setEmail("karim.gharbi@email.com");
-        client2.setTelephone("98777888");
-        client2.setNumPermis("TN777888");
-        client2.setDateInscription(LocalDate.now());
+        ClientDTO client2 = ClientDTO.builder()
+                .nom("Gharbi")
+                .prenom("Karim")
+                .email("karim.gharbi@email.com")
+                .telephone("98777888")
+                .numPermis("TN777888")
+                .dateInscription(LocalDate.now())
+                .build();
 
-        // create()
-        Client client1Cree = clientService.create(client1);
-        Client client2Cree = clientService.create(client2);
-        System.out.println("Client 1 créé (via service) : " + client1Cree.getIdClient()
+        // creer()
+        ClientDTO client1Cree = clientService.creer(client1);
+        ClientDTO client2Cree = clientService.creer(client2);
+        System.out.println("Client 1 créé (via service) : " + client1Cree.getId()
                 + " - " + client1Cree.getNom());
-        System.out.println("Client 2 créé (via service) : " + client2Cree.getIdClient()
+        System.out.println("Client 2 créé (via service) : " + client2Cree.getId()
                 + " - " + client2Cree.getNom());
 
         // findAll()
-        List<Client> tousLesClients = clientService.findAll();
+        List<ClientDTO> tousLesClients = clientService.findAll();
         System.out.println("Nombre total de clients : " + tousLesClients.size());
 
         // findById()
-        Client clientTrouve = clientService.findById(client1Cree.getIdClient());
+        ClientDTO clientTrouve = clientService.findById(client1Cree.getId());
         assertNotNull(clientTrouve);
         System.out.println("Client trouvé par ID : " + clientTrouve.getNom());
 
@@ -363,40 +369,47 @@ class TpAutolocApplicationTests {
         System.out.println("Nombre de clients en base : " + clientService.findAll().size());
 
         // deleteById() du premier client
-        clientService.deleteById(client1Cree.getIdClient());
+        clientService.deleteById(client1Cree.getId());
         assertThrows(ResourceNotFoundException.class,
-                () -> clientService.findById(client1Cree.getIdClient()));
+                () -> clientService.findById(client1Cree.getId()));
         System.out.println("Le client 1 a bien été supprimé");
 
         // nettoyage du second client créé pour ce test
-        clientService.deleteById(client2Cree.getIdClient());
+        clientService.deleteById(client2Cree.getId());
     }
     @Autowired
     private IVehiculeService vehiculeService;
 
     @Test
     void testVehiculeService() {
-        // Création d'un véhicule
-        Vehicule vehicule = new Vehicule();
-        vehicule.setImmatriculation("789 TUN 1234");
-        vehicule.setMarque("Peugeot");
-        vehicule.setModele("208");
-        vehicule.setCategorie(CategorieVehicule.CITADINE);
-        vehicule.setTarifJournalier(new BigDecimal("90.00"));
-        vehicule.setStatut(StatutVehicule.DISPONIBLE);
+        // Un véhicule doit être rattaché à une agence
+        AgenceDTO agence = agenceService.creer(AgenceDTO.builder()
+                .nom("Agence Test Véhicule").ville("Tunis").build());
 
-        // create()
-        Vehicule vehiculeCree = vehiculeService.create(vehicule);
-        System.out.println("Véhicule créé (via service) : " + vehiculeCree.getIdVehicule()
+        // Création d'un véhicule (DTO)
+        VehiculeDTO vehicule = VehiculeDTO.builder()
+                .immatriculation("789 TUN 1234")
+                .marque("Peugeot")
+                .modele("208")
+                .categorie(CategorieVehicule.CITADINE)
+                .tarifJournalier(new BigDecimal("90.00"))
+                .statut(StatutVehicule.DISPONIBLE)
+                .agenceId(agence.getId())
+                .build();
+
+        // creer()
+        VehiculeDTO vehiculeCree = vehiculeService.creer(vehicule);
+        System.out.println("Véhicule créé (via service) : " + vehiculeCree.getId()
                 + " - " + vehiculeCree.getMarque() + " " + vehiculeCree.getModele());
-        assertNotNull(vehiculeCree.getIdVehicule());
+        assertNotNull(vehiculeCree.getId());
+        assertEquals(agence.getId(), vehiculeCree.getAgenceId());
 
         // findAll()
-        List<Vehicule> tousLesVehicules = vehiculeService.findAll();
+        List<VehiculeDTO> tousLesVehicules = vehiculeService.findAll();
         System.out.println("Nombre total de véhicules : " + tousLesVehicules.size());
 
         // findById()
-        Vehicule vehiculeTrouve = vehiculeService.findById(vehiculeCree.getIdVehicule());
+        VehiculeDTO vehiculeTrouve = vehiculeService.findById(vehiculeCree.getId());
         assertNotNull(vehiculeTrouve);
         System.out.println("Véhicule trouvé par ID : " + vehiculeTrouve.getMarque());
 
@@ -404,10 +417,13 @@ class TpAutolocApplicationTests {
         System.out.println("Nombre de véhicules en base : " + vehiculeService.findAll().size());
 
         // deleteById()
-        vehiculeService.deleteById(vehiculeCree.getIdVehicule());
+        vehiculeService.deleteById(vehiculeCree.getId());
         assertThrows(ResourceNotFoundException.class,
-                () -> vehiculeService.findById(vehiculeCree.getIdVehicule()));
+                () -> vehiculeService.findById(vehiculeCree.getId()));
         System.out.println("Le véhicule a bien été supprimé");
+
+        // nettoyage de l'agence créée pour ce test
+        agenceService.deleteById(agence.getId());
     }
 
 }
