@@ -1,8 +1,12 @@
 package tn.esprit.tpautoloc.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tn.esprit.tpautoloc.domain.enums.StatutReservation;
+import tn.esprit.tpautoloc.service.observer.ReservationSubject;
 import tn.esprit.tpautoloc.domain.Client;
 import tn.esprit.tpautoloc.domain.Contrat;
 import tn.esprit.tpautoloc.domain.Reservation;
@@ -14,6 +18,7 @@ import tn.esprit.tpautoloc.service.IContratService;
 import tn.esprit.tpautoloc.service.IReservationService;
 import tn.esprit.tpautoloc.service.IVehiculeService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements IReservationService {
@@ -22,6 +27,38 @@ public class ReservationServiceImpl implements IReservationService {
     private final IClientService clientService;
     private final IVehiculeService vehiculeService;
     private final IContratService contratService;
+    private final ReservationSubject reservationSubject;
+
+    /**
+     * Crée une réservation et notifie tous les observateurs
+     */
+    @Override
+    public Reservation creerReservation(Client client) {
+        Reservation reservation = Reservation.builder()
+                .client(client)
+                .dateDebut(LocalDate.now())
+                .statut(StatutReservation.CONFIRMEE)
+                .build();
+
+        // Déclenche le process métier via le pattern Observer
+        reservationSubject.notifierConfirmation(reservation);
+
+        return reservation;
+    }
+
+    /**
+     * Annule une réservation existante et notifie tous les observateurs
+     */
+    @Override
+    public Reservation annulerReservation(Reservation reservation) {
+        reservation.setStatut(StatutReservation.ANNULEE);
+        log.info("Reservation #{} annulée pour le client {}",
+                reservation.getIdReservation(), reservation.getClient().getEmail());
+
+        reservationSubject.notifierAnnulation(reservation);
+
+        return reservation;
+    }
 
     @Override
     public Reservation create(Reservation reservation) {
